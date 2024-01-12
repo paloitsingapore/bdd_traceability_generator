@@ -1,0 +1,74 @@
+version: "3"
+
+networks:
+  local:
+    driver: bridge
+
+services:
+  dashboard-generator:
+    container_name: dashboard-generator
+    image:  palo/test-coverage-generator
+    depends_on:
+      - grafana
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+      - JIRA_PROJECT_KEY=${ENV_JIRA_PROJECT_KEY}
+      - JIRA_JQL=${ENV_JIRA_JQL}
+      - JIRA_HOST=${ENV_JIRA_HOST}
+      - JIRA_USERNAME=${ENV_JIRA_USERNAME}
+      - JIRA_APIKEY=${ENV_JIRA_APIKEY}
+      - JIRA_AC_FIELD=${ENV_JIRA_AC_FIELD}
+      - JIRA_AC_IDENTIFIER=${ENV_JIRA_AC_IDENTIFIER}
+      - CUCUMBER_REPORT_PATH=${ENV_CUCUMBER_REPORT_PATH}
+    volumes:
+      - ./CucumberTestReport.json:/app/CucumberTestReport.json
+    #command: ["./run-mvn.sh","${JIRA_PROJECT_KEY}","${JIRA_HOST}","${JIRA_USERNAME}","${JIRA_APIKEY}","${JIRA_AC_FIELD}","${JIRA_AC_IDENTIFIER}","${JIRA_JQL}","${CUCUMBER_REPORT_PATH}"]
+
+    networks:
+      local:
+
+
+  grafana:
+    image: grafana/grafana:8.1.1
+    container_name: dashboard-grafana
+    platform: linux/amd64
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_DATABASE_TYPE: mysql
+      GF_DATABASE_HOST: db:3306
+      GF_DATABASE_NAME: grafana_db
+      GF_DATABASE_USER: grafana_db_user
+      GF_DATABASE_PASSWORD: password
+    networks:
+      local:
+
+  db:
+    image: mysql:5.7
+    container_name: dashboard-db
+    platform: linux/amd64
+    environment:
+      MYSQL_DATABASE: grafana_db
+      MYSQL_ROOT_PASSWORD: passowrd
+    volumes:
+      - ./src/main/resources/db:/tmp/db
+    command: mysqld --init-file="/tmp/db/init-db.sql"
+    ports:
+      - "3307:3306"
+    expose:
+      - "3306"
+    networks:
+      local:
+    healthcheck:
+      test:  mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD
+      timeout: 20s
+      retries: 10
