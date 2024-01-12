@@ -63,14 +63,15 @@ Here's Description:
 
 To Generate Tracebility Reports 
 
+#### For MAC (Apple silicon ) 
 ```
-docker compose up -d
+docker-compose -f docker-compose_mac.yml up
 ```
 
-#### Note: If you are using docker on MAC (Apple silicon )
-specify platform in docker-compose.yml for grafana and mysql images as below
+#### For Other Platforms
+
 ```
-platform: linux/amd64
+docker-compose up
 ```
 
 ## Access Reports via Grafana Dashboard
