@@ -6,7 +6,7 @@ networks:
 
 services:
   dashboard-generator:
-    image: lab3agritechpaloit/auto-trace:latest
+    image: lab3agritechpaloit/bdd-req-tracer:latest
     container_name: dashboard-generator
     depends_on:
       - grafana
