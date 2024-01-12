@@ -1,5 +1,5 @@
 # BDD Automated Requirement Traceability Generator
-This Repository contains instructions for Automated Test Traceability Generator
+This Repository contains instructions to use Automated Test Traceability Generator Utility.
 
 ## Prerequisites
 Before using this utility, make sure you have the following:
